@@ -2,6 +2,8 @@
 
 #include "Weaver.h"
 
+#include <thread>
+
 #include <log/log.h>
 #include <android-base/logging.h>
 
@@ -33,12 +35,12 @@ Weaver::Weaver() {
 
     rc = rk_tee_weaver_read(pkey, sizeof(uint8_t)* _config.slots * _config.keySize,pvalue,sizeof(uint8_t)* _config.slots * _config.valueSize);
     if (rc < 0) {
-        LOG(ERROR)<<"Error weaver write:" << rc;
+        LOG(ERROR)<<"Error weaver read:" << rc;
     }
 
     for (int i = 0; i < _config.slots; i++) {
-        std::vector<uint8_t> key(20);
-        std::vector<uint8_t> value(20);
+        std::vector<uint8_t> key(32);
+        std::vector<uint8_t> value(32);
         _key.insert(make_pair(i,key));
         _value.insert(make_pair(i,value));
     }
@@ -91,10 +93,16 @@ Return<::android::hardware::weaver::V1_0::WeaverStatus> Weaver::write(uint32_t s
         //	LOG(INFO) <<"value:"<<std::to_string(pvalue[slotId*_config.valueSize + i]);
     }
 
-    int rc = rk_tee_weaver_write(pkey, sizeof(uint8_t)* _config.slots * _config.keySize,pvalue,sizeof(uint8_t)* _config.slots * _config.valueSize);
-    if (rc < 0) {
-        LOG(ERROR)<<"Error weaver write:" << rc;
-    }
+    std::thread th([&](){
+        LOG(INFO)<<"async write";
+        int rc = rk_tee_weaver_write(pkey, sizeof(uint8_t)* _config.slots * _config.keySize,pvalue,sizeof(uint8_t)* _config.slots * _config.valueSize);
+        if (rc < 0) {
+            LOG(ERROR)<<"Error weaver write:" << rc;
+        }
+        LOG(INFO)<<"async write complete";
+     });
+
+    th.detach();
     return ::android::hardware::weaver::V1_0::WeaverStatus {};
 }
 
