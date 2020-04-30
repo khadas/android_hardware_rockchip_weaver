@@ -34,7 +34,6 @@ cc_library_shared {
         "libbase",
         "libcutils",
         "libhidlbase",
-        "libhidltransport",
         "libutils",
         "liblog",
         "android.hardware.weaver@1.0",
@@ -60,7 +59,6 @@ cc_binary {
         "libutils",
         "libhardware",
         "libhidlbase",
-        "libhidltransport",
         "android.hardware.weaver@1.0",
     ],
 
@@ -79,6 +77,7 @@ cc_prebuilt_library_shared {
     strip: {
         none: true,
     },
+    check_elf_files: false,
     vendor: true,
 }
 cc_prebuilt_library_shared {
@@ -95,5 +94,6 @@ cc_prebuilt_library_shared {
     strip: {
         none: true,
     },
+    check_elf_files: false,
     vendor: true,
 }
