@@ -97,3 +97,16 @@ cc_prebuilt_library_shared {
     check_elf_files: false,
     vendor: true,
 }
+cc_rockchip_prebuilt_obj {
+    name: "481a57df-aec8-47ad-92f5eb9fc24f64a6.ta",
+    src: "prebuilts/v1/481a57df-aec8-47ad-92f5eb9fc24f64a6.ta",
+    vendor: true,
+    sub_dir: "lib/optee_armtz",
+}
+
+cc_rockchip_prebuilt_obj {
+    name: "481a57df-aec8-47ad-92f5-eb9fc24f64a6.ta",
+    src: "prebuilts/v2/481a57df-aec8-47ad-92f5-eb9fc24f64a6.ta",
+    vendor: true,
+    sub_dir: "lib/optee_armtz",
+}
