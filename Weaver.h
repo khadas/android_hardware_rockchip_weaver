@@ -36,6 +36,7 @@ private:
     WeaverConfig _config;
     uint8_t* pkey;
     uint8_t* pvalue;
+    uint32_t errorCount = 0;
     std::map<uint32_t,std::vector<uint8_t>> _key;
     std::map<uint32_t,std::vector<uint8_t>> _value;
 

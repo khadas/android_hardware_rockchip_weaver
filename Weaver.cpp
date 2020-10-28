@@ -119,6 +119,25 @@ Return<::android::hardware::weaver::V1_0::WeaverStatus> Weaver::write(uint32_t s
     return ::android::hardware::weaver::V1_0::WeaverStatus {};
 }
 
+static uint32_t calculateTimeout(int error_count) {
+    static const int failure_timeout_ms = 30000;
+    if (error_count == 0) return 0;
+
+    if (error_count > 0 && error_count <= 10) {
+        if (error_count % 5 == 0) {
+            return failure_timeout_ms;
+        } else {
+            return 0;
+        }
+    } else if (error_count < 30) {
+        return failure_timeout_ms;
+    } else if (error_count < 140) {
+        return failure_timeout_ms << ((error_count - 30) / 10);
+    }
+
+    return 24 * 60 * 60 * 1000;// one day
+}
+
 Return<void> Weaver::read(uint32_t slotId, const hidl_vec<uint8_t>& key, read_cb _hidl_cb) {
     LOG(INFO)<<"Weaver::read"<<"slotId:"<<slotId;
     WeaverReadResponse response;
@@ -139,6 +158,8 @@ Return<void> Weaver::read(uint32_t slotId, const hidl_vec<uint8_t>& key, read_cb
     for (int i = 0; i < count;i++)
     {
         if (pkey[slotId*_config.keySize + i] != key[i]) {
+            errorCount++;
+            response.timeout = calculateTimeout(errorCount);
             _hidl_cb(WeaverReadStatus::INCORRECT_KEY,response);
             return Void();
         } else {
@@ -148,6 +169,7 @@ Return<void> Weaver::read(uint32_t slotId, const hidl_vec<uint8_t>& key, read_cb
     }
     response.value =  responseValue;
     _hidl_cb(WeaverReadStatus::OK,response);
+    errorCount = 0;
 
     return Void();
 }
