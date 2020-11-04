@@ -4,7 +4,6 @@ import (
     "android/soong/android"
     "android/soong/cc"
     "fmt"
-    "strings"
 )
 
 func init() {
@@ -28,9 +27,19 @@ func AddOpteeShardLibs(ctx android.LoadHookContext) {
     ctx.AppendProperties(p)
 }
 
+func isContain(items []string, item string) bool {
+    for _, eachItem := range items {
+        if eachItem == item {
+            return true
+        }
+    }
+    return false
+}
+
 func getOpteeVersion(ctx android.BaseContext) (string) {
     var optee_version string = "v1"
-    if (strings.EqualFold(ctx.AConfig().Getenv("TARGET_BOARD_PLATFORM"),"rk3326")) {
+    var optee_v2_list = []string{"rk3326", "rk356x"}
+    if (isContain(optee_v2_list, ctx.AConfig().Getenv("TARGET_BOARD_PLATFORM"))) {
         optee_version = "v2"
     }
     fmt.Println("Optee Version: " + optee_version)
