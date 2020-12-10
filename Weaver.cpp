@@ -6,6 +6,7 @@
 
 #include <log/log.h>
 #include <android-base/logging.h>
+#include <cutils/properties.h>
 
 extern "C" {
     #include "rk_weaver_entry.h"
@@ -93,16 +94,28 @@ Return<::android::hardware::weaver::V1_0::WeaverStatus> Weaver::write(uint32_t s
         //	LOG(INFO) <<"value:"<<std::to_string(pvalue[slotId*_config.valueSize + i]);
     }
 
-    std::thread th([&](){
-        LOG(INFO)<<"async write";
+    bool block_thread = property_get_bool("cts_gts.weaver_block_thread", true);
+    if (!block_thread) {
+        // Use async mode for normal use.
+        LOG(INFO)<<"Starting async write...";
+        std::thread th([&](){
+            LOG(INFO)<<"async write";
+            int rc = rk_tee_weaver_write(pkey, sizeof(uint8_t)* _config.slots * _config.keySize,pvalue,sizeof(uint8_t)* _config.slots * _config.valueSize);
+            if (rc < 0) {
+                LOG(ERROR)<<"Error weaver write:" << rc;
+            }
+            LOG(INFO)<<"async write complete";
+        });
+        th.detach();
+    } else {
+        // Use sync mode for cts & cts-on-gsi.
+        LOG(INFO)<<"Starting sync write...";
         int rc = rk_tee_weaver_write(pkey, sizeof(uint8_t)* _config.slots * _config.keySize,pvalue,sizeof(uint8_t)* _config.slots * _config.valueSize);
         if (rc < 0) {
             LOG(ERROR)<<"Error weaver write:" << rc;
         }
-        LOG(INFO)<<"async write complete";
-     });
-
-    th.detach();
+        LOG(INFO)<<"Ending sync write...";
+    }
     return ::android::hardware::weaver::V1_0::WeaverStatus {};
 }
 
