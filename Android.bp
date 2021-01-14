@@ -77,6 +77,9 @@ cc_prebuilt_library_shared {
     strip: {
         none: true,
     },
+    shared_libs: [
+        "libteec",
+    ],
     check_elf_files: false,
     vendor: true,
 }
@@ -94,6 +97,9 @@ cc_prebuilt_library_shared {
     strip: {
         none: true,
     },
+    shared_libs: [
+        "libteec",
+    ],
     check_elf_files: false,
     vendor: true,
 }
