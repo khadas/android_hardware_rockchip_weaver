@@ -38,7 +38,7 @@ func isContain(items []string, item string) bool {
 
 func getOpteeVersion(ctx android.BaseContext) (string) {
     var optee_version string = "v1"
-    var optee_v2_list = []string{"rk3326", "rk356x"}
+    var optee_v2_list = []string{"rk3326", "rk356x", "rk3588"}
     if (isContain(optee_v2_list, ctx.AConfig().Getenv("TARGET_BOARD_PLATFORM"))) {
         optee_version = "v2"
     }
